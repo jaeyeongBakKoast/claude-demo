@@ -1,0 +1,18 @@
+# --- Claude Code ---
+# 개인 설정·세션 상태는 제외하고, 팀 공유 자산만 화이트리스트로 커밋한다.
+# 순서 주의: 먼저 모든 위치의 .claude/ 를 제외한 뒤 필요한 것만 다시 포함한다.
+CLAUDE.local.md
+.claude/
+!/.claude/
+/.claude/*
+!/.claude/README.md
+!/.claude/settings.json
+!/.claude/agents/
+!/.claude/skills/
+!/.claude/rules/
+!/.claude/hooks/
+
+# 모듈 그룹의 .claude 는 skills 만 공유한다. 그룹마다 아래 3줄을 반복한다.
+!/<그룹>/.claude/
+/<그룹>/.claude/*
+!/<그룹>/.claude/skills/

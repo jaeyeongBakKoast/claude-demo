@@ -1,0 +1,43 @@
+# --- 빌드 산출물 ---
+build/
+dist/
+out/
+.gradle/
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+*.log
+
+# --- 비밀값 ---
+.env
+.env.*
+!.env.example
+**/secrets/
+
+# --- 에디터 ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# --- Claude Code ---
+# 개인 설정·세션 상태는 제외하고, 팀 공유 자산만 화이트리스트로 커밋한다.
+# 순서 주의: 먼저 모든 위치의 .claude/ 를 제외한 뒤 필요한 것만 다시 포함한다.
+CLAUDE.local.md
+.claude/
+!/.claude/
+/.claude/*
+!/.claude/README.md
+!/.claude/settings.json
+!/.claude/agents/
+!/.claude/skills/
+!/.claude/rules/
+!/.claude/hooks/
+
+# 모듈 그룹의 .claude 는 skills 만 공유한다 (settings 는 상위에서 상속되지 않으므로 두지 않는다).
+!/edge/.claude/
+/edge/.claude/*
+!/edge/.claude/skills/
+!/central/.claude/
+/central/.claude/*
+!/central/.claude/skills/
