@@ -53,5 +53,6 @@
 - **처음 읽을 문서**: [docs/guides/claude-structure.md](docs/guides/claude-structure.md)
 - **적용하기**: [docs/guides/adopting-existing-repo.md](docs/guides/adopting-existing-repo.md)
   — 새 프로젝트는 복사 후 `<...>` 채우기, 기존 프로젝트는 `apply-claude-structure` 스킬 사용
+- **팀 스터디(60분 실습)**: [docs/study/study.html](docs/study/study.html) (참가자용), [docs/study/facilitator-script.md](docs/study/facilitator-script.md) (진행자 대본)
 
 `<...>` 표시는 실제 프로젝트 값으로 바꿀 자리다.

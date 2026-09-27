@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Claude 구조 실습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root {
+    --bg: #F2F5F7;
+    --surface: #FFFFFF;
+    --sunk: #E8EDF1;
+    --ink: #16212B;
+    --muted: #56636F;
+    --line: #D5DDE3;
+    --accent: #0B7A6E;
+    --accent-soft: #D9EFEB;
+    --block: #B0442C;
+    --block-soft: #F6E1DB;
+    --code-bg: #14202A;
+    --code-ink: #D6E4EA;
+    --code-dim: #7F97A3;
+    --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0F151B;
+      --surface: #161E26;
+      --sunk: #1C2630;
+      --ink: #E3EAEF;
+      --muted: #97A6B1;
+      --line: #2A3743;
+      --accent: #4CC3B2;
+      --accent-soft: #143731;
+      --block: #EE8B72;
+      --block-soft: #3A221C;
+      --code-bg: #0A0F14;
+      --code-ink: #D6E4EA;
+      --code-dim: #6F8794;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0F151B;
+    --surface: #161E26;
+    --sunk: #1C2630;
+    --ink: #E3EAEF;
+    --muted: #97A6B1;
+    --line: #2A3743;
+    --accent: #4CC3B2;
+    --accent-soft: #143731;
+    --block: #EE8B72;
+    --block-soft: #3A221C;
+    --code-bg: #0A0F14;
+    --code-ink: #D6E4EA;
+    --code-dim: #6F8794;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    padding-inline: 16px;
+    padding-block: 0 64px;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  h1, h2, h3 { text-wrap: balance; line-height: 1.3; margin: 0; }
+  p { margin: 0; }
+  a { color: var(--accent); }
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--sunk);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  /* ---------- header ---------- */
+  header.top {
+    padding-block: 48px 32px;
+    display: grid;
+    gap: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  header.top h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; }
+  header.top .lede { color: var(--muted); max-width: 62ch; font-size: 17px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted); }
+  .meta b { color: var(--ink); font-weight: 500; }
+
+  /* ---------- layout ---------- */
+  .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; padding-top: 32px; }
+  nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  nav.toc a {
+    display: grid; grid-template-columns: 44px 1fr; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; color: var(--muted); text-decoration: none;
+  }
+  nav.toc a:hover { background: var(--sunk); color: var(--ink); }
+  nav.toc .t { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; padding-top: 2px; }
+  .progress { margin-top: 16px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  .progress .bar { height: 6px; background: var(--sunk); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+  .progress .fill { height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+  .progress small { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  main { display: grid; gap: 64px; min-width: 0; }
+  section { display: grid; gap: 20px; scroll-margin-top: 24px; }
+  .sec-head { display: grid; gap: 6px; }
+  .sec-head .time { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  section h2 { font-size: 26px; font-weight: 700; }
+  section h3 { font-size: 17px; font-weight: 700; }
+  .prose { max-width: 68ch; display: grid; gap: 12px; }
+  .prose ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+
+  /* ---------- load ladder ---------- */
+  .ladder { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+  .rung {
+    display: grid; grid-template-columns: 148px 1fr 1.1fr; gap: 16px;
+    padding: 16px 20px; border-top: 1px solid var(--line); align-items: start;
+  }
+  .rung:first-child { border-top: 0; }
+  .rung .when { font-weight: 700; display: grid; gap: 2px; }
+  .rung .when span { font-family: var(--mono); font-size: 11px; font-weight: 400; color: var(--muted); letter-spacing: .04em; }
+  .rung .where { font-family: var(--mono); font-size: 13px; display: grid; gap: 2px; }
+  .rung .what { color: var(--muted); font-size: 15px; }
+  .cost { display: inline-block; height: 8px; border-radius: 4px; background: var(--accent); vertical-align: middle; margin-right: 8px; }
+  .rung.hard { background: var(--block-soft); }
+  .rung.hard .cost { background: var(--block); }
+
+  .pull {
+    border-left: 3px solid var(--accent);
+    padding: 4px 0 4px 16px;
+    font-size: 18px; font-weight: 500; max-width: 60ch;
+  }
+
+  /* ---------- labs ---------- */
+  .lab { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: grid; gap: 20px; }
+  .goal { display: flex; gap: 10px; align-items: baseline; color: var(--muted); }
+  .goal b { color: var(--ink); font-weight: 500; }
+  .tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap;
+  }
+  ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: s; }
+  ol.steps > li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; counter-increment: s; }
+  ol.steps > li > input { width: 20px; height: 20px; margin: 3px 0 0; accent-color: var(--accent); cursor: pointer; }
+  ol.steps > li > .body { display: grid; gap: 8px; min-width: 0; }
+  ol.steps > li > .body > label { cursor: pointer; }
+  ol.steps > li > .body > label::before { content: counter(s) ". "; font-family: var(--mono); color: var(--muted); font-size: 14px; }
+  ol.steps > li:has(input:checked) > .body > label { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+
+  .cmd { position: relative; background: var(--code-bg); color: var(--code-ink); border-radius: 8px; }
+  .cmd pre {
+    margin: 0; padding: 14px 16px; padding-right: 72px; overflow-x: auto;
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.6; white-space: pre;
+  }
+  .cmd .p { color: var(--code-dim); user-select: none; }
+  .cmd button {
+    position: absolute; top: 8px; right: 8px;
+    font: 500 12px var(--sans); color: var(--code-ink);
+    background: transparent; border: 1px solid #3A4C58; border-radius: 6px; padding: 4px 10px; cursor: pointer;
+  }
+  .cmd button:hover { background: #22323D; }
+
+  .expect {
+    display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: baseline;
+    background: var(--accent-soft); border-radius: 8px; padding: 10px 14px; font-size: 15px;
+  }
+  .expect.block { background: var(--block-soft); }
+  .expect .k { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+  .expect.block .k { color: var(--block); }
+
+  .why { border-top: 1px dashed var(--line); padding-top: 16px; display: grid; gap: 8px; font-size: 15px; color: var(--muted); max-width: 68ch; }
+  .why b { color: var(--ink); }
+
+  details.discuss { border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; background: var(--bg); }
+  details.discuss summary { cursor: pointer; font-weight: 500; }
+  details.discuss > div { padding-top: 10px; display: grid; gap: 8px; font-size: 15px; color: var(--muted); }
+
+  /* ---------- decision ---------- */
+  .decide { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+  .decide div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 16px; padding: 12px 20px; border-top: 1px solid var(--line); }
+  .decide div:first-child { border-top: 0; }
+  .decide .q { font-weight: 500; }
+  .decide .a { font-family: var(--mono); font-size: 13.5px; color: var(--accent); }
+  .decide .a.hard { color: var(--block); }
+
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  .tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  th, td { text-align: left; padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+  thead th { border-top: 0; font-size: 13px; color: var(--muted); font-weight: 500; background: var(--sunk); }
+
+  footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; gap: 24px; }
+    nav.toc { position: static; }
+    nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .rung { grid-template-columns: 1fr; gap: 6px; }
+    .decide div { grid-template-columns: 1fr; gap: 4px; }
+    .lab { padding: 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Study · Claude Code repository layout</div>
+    <h1>무엇을 어디에 둘 것인가</h1>
+    <p class="lede">
+      CLAUDE.md, rules, skills, agents, hooks를 멀티 모듈 저장소에 배치하는 법을 견본 레포로 직접 확인합니다.
+      같은 규칙도 어디에 두느냐에 따라 매 세션 로드되기도 하고, 필요할 때만 로드되기도 하고, 모델이 무시할 수 없게 되기도 합니다.
+    </p>
+    <div class="meta">
+      <span><b>60분</b> · 설명 10 · 실습 45 · 정리 5</span>
+      <span>대상 <b>Claude Code 사용 경험자</b></span>
+      <span>준비 <b>claude · git · python3</b></span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="목차">
+      <ol>
+        <li><a href="#prep"><span class="t">준비</span><span>사전 준비</span></a></li>
+        <li><a href="#concept"><span class="t">05′</span><span>로드 시점 = 비용</span></a></li>
+        <li><a href="#lab1"><span class="t">13′</span><span>실습 1 · 계층 로딩</span></a></li>
+        <li><a href="#lab2"><span class="t">23′</span><span>실습 2 · 경로 rule</span></a></li>
+        <li><a href="#lab3"><span class="t">31′</span><span>실습 3 · 훅</span></a></li>
+        <li><a href="#lab4"><span class="t">39′</span><span>실습 4 · skill·agent</span></a></li>
+        <li><a href="#lab5"><span class="t">45′</span><span>실습 5 · rule 만들기</span></a></li>
+        <li><a href="#wrap"><span class="t">55′</span><span>판단 순서·과제</span></a></li>
+      </ol>
+      <div class="progress" aria-live="polite">
+        <small id="progress-text">진행 0 / 0</small>
+        <div class="bar"><div class="fill" id="progress-fill"></div></div>
+      </div>
+    </nav>
+
+    <main>
+      <!-- ============ 준비 ============ -->
+      <section id="prep">
+        <div class="sec-head">
+          <span class="time">스터디 전</span>
+          <h2>사전 준비</h2>
+        </div>
+        <div class="lab">
+          <ol class="steps">
+            <li><input type="checkbox" id="prep-1"><div class="body">
+              <label for="prep-1">Claude Code 최신 버전 설치·로그인</label>
+              <div class="cmd"><pre><span class="p">$ </span>claude --version</pre><button type="button">복사</button></div>
+            </div></li>
+            <li><input type="checkbox" id="prep-2"><div class="body">
+              <label for="prep-2">git, python3 확인 — 훅 스크립트가 python3로 입력 JSON을 읽습니다. macOS·Linux·WSL 권장</label>
+              <div class="cmd"><pre><span class="p">$ </span>git --version &amp;&amp; python3 --version</pre><button type="button">복사</button></div>
+            </div></li>
+            <li><input type="checkbox" id="prep-3"><div class="body">
+              <label for="prep-3">견본 레포 clone</label>
+              <div class="cmd"><pre><span class="p">$ </span>git clone https://github.com/jaeyeongBakKoast/claude-demo.git
+<span class="p">$ </span>cd claude-demo</pre><button type="button">복사</button></div>
+            </div></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ============ 개념 ============ -->
+      <section id="concept">
+        <div class="sec-head">
+          <span class="time">0:05 – 0:13</span>
+          <h2>로드 시점이 곧 비용이다</h2>
+        </div>
+        <p class="prose">위에 있을수록 자주 로드되고, 그만큼 모든 세션의 컨텍스트를 차지합니다. 막대 길이는 로드 빈도를 나타냅니다. 맨 아래 훅은 로드가 아니라 실행이라서 모델의 판단과 상관없이 동작합니다.</p>
+
+        <div class="ladder" role="table" aria-label="자산별 로드 시점">
+          <div class="rung" role="row">
+            <div class="when" role="cell"><span><i class="cost" style="width:96px"></i></span>항상</div>
+            <div class="where" role="cell"><span>CLAUDE.md</span><span>@AGENTS.md</span></div>
+            <div class="what" role="cell">세션 시작 시, <code>/compact</code> 뒤에도 다시. 모든 작업에 필요한 사실만. 200줄 이하.</div>
+          </div>
+          <div class="rung" role="row">
+            <div class="when" role="cell"><span><i class="cost" style="width:64px"></i></span>폴더에 들어갈 때</div>
+            <div class="where" role="cell"><span>edge/CLAUDE.md</span><span>edge/api/CLAUDE.md</span><span>edge/.claude/skills/</span></div>
+            <div class="what" role="cell">그 폴더의 파일을 처음 읽을 때. 모듈의 명령·구조·함정, 그룹 전용 절차.</div>
+          </div>
+          <div class="rung" role="row">
+            <div class="when" role="cell"><span><i class="cost" style="width:40px"></i></span>파일 패턴이 맞을 때</div>
+            <div class="where" role="cell"><span>.claude/rules/*.md</span><span>paths: [...]</span></div>
+            <div class="what" role="cell">매칭 파일을 읽을 때. 여러 모듈에 흩어진 같은 종류 파일의 규칙.</div>
+          </div>
+          <div class="rung" role="row">
+            <div class="when" role="cell"><span><i class="cost" style="width:20px"></i></span>쓸 때만</div>
+            <div class="where" role="cell"><span>.claude/skills/*/SKILL.md</span><span>.claude/agents/*.md</span></div>
+            <div class="what" role="cell">description만 항상. skill 본문은 호출 시, agent는 별도 컨텍스트에서 요약만 돌려줌.</div>
+          </div>
+          <div class="rung hard" role="row">
+            <div class="when" role="cell"><span><i class="cost" style="width:12px"></i></span>도구 호출 전후</div>
+            <div class="where" role="cell"><span>.claude/hooks/*.sh</span><span>permissions.deny</span></div>
+            <div class="what" role="cell">모델이 판단하지 않는다. 반드시 지켜야 하는 것은 여기.</div>
+          </div>
+        </div>
+
+        <p class="pull">CLAUDE.md의 "하지 마라"는 요청이고, 훅은 보장이다.</p>
+
+        <div class="prose">
+          <h3>두 가지 원칙</h3>
+          <ul>
+            <li><b>한 사실은 한 곳에만.</b> 코드 컨벤션은 <code>docs/conventions/</code>에 쓰고 <code>.claude/</code>에서는 가리키기만 합니다. 사람과 Cursor도 읽어야 합니다.</li>
+            <li><b>도구 중립 정보는 AGENTS.md에.</b> CLAUDE.md가 있으면 Claude Code는 AGENTS.md를 자동으로 읽지 않습니다. 그래서 CLAUDE.md 첫 줄이 <code>@AGENTS.md</code>입니다.</li>
+          </ul>
+        </div>
+
+        <details class="discuss">
+          <summary>자주 나오는 질문</summary>
+          <div>
+            <p><b>@import로 쪼개면 토큰이 줄지 않나요?</b> 줄지 않습니다. import한 파일도 시작 시 전부 로드됩니다. 파일 정리 수단입니다.</p>
+            <p><b>모듈 그룹마다 settings.json을 두면?</b> 상위 폴더에서 상속되지 않습니다. 훅과 권한은 루트 한 곳에, 그룹 <code>.claude/</code>에는 <code>skills/</code>만 둡니다.</p>
+            <p><b>.claude/commands/는요?</b> 예전 형식입니다. 새 슬래시 명령은 skill로 만듭니다.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ============ 실습 1 ============ -->
+      <section id="lab1">
+        <div class="sec-head">
+          <span class="time">0:13 – 0:23</span>
+          <h2>실습 1 · CLAUDE.md 계층과 그룹 스킬</h2>
+        </div>
+        <div class="lab">
+          <p class="goal"><span class="tag">확인</span><b>모듈 CLAUDE.md와 그룹 스킬은 그 폴더에 들어갈 때 로드된다</b></p>
+          <ol class="steps">
+            <li><input type="checkbox" id="l1-1"><div class="body">
+              <label for="l1-1">Claude Code 시작. 폴더 신뢰 확인이 나오면 Yes (프로젝트 훅이 등록돼 있어 묻습니다)</label>
+              <div class="cmd"><pre><span class="p">$ </span>claude</pre><button type="button">복사</button></div>
+            </div></li>
+            <li><input type="checkbox" id="l1-2"><div class="body">
+              <label for="l1-2">로드된 메모리 파일 확인</label>
+              <div class="cmd"><pre><span class="p">&gt; </span>/context</pre><button type="button">복사</button></div>
+              <div class="expect"><span class="k">예상</span><span><code>CLAUDE.md</code>, <code>AGENTS.md</code>만 있다. <code>edge/CLAUDE.md</code>는 없다.</span></div>
+            </div></li>
+            <li><input type="checkbox" id="l1-3"><div class="body">
+              <label for="l1-3"><code>/edge</code>까지 입력하고 자동완성 목록 보기 (실행하지 않음)</label>
+              <div class="expect"><span class="k">예상</span><span><code>edge-release-check</code>가 보이지 않는다.</span></div>
+            </div></li>
+            <li><input type="checkbox" id="l1-4"><div class="body">
+              <label for="l1-4">edge 파일 하나를 읽게 한다</label>
+              <div class="cmd"><pre><span class="p">&gt; </span>edge/api/CLAUDE.md를 읽고 실행 명령만 요약해줘</pre><button type="button">복사</button></div>
+            </div></li>
+            <li><input type="checkbox" id="l1-5"><div class="body">
+              <label for="l1-5">다시 <code>/context</code>, 다시 <code>/edge</code></label>
+              <div class="expect"><span class="k">예상</span><span><code>edge/CLAUDE.md</code>, <code>edge/api/CLAUDE.md</code>가 추가되고 <code>edge-release-check</code>가 보인다. <code>central/CLAUDE.md</code>는 여전히 없다.</span></div>
+            </div></li>
+          </ol>
+          <div class="why">
+            <p><b>왜?</b> central 작업만 하는 세션에서 edge 규칙은 한 줄도 로드되지 않습니다. edge 공통 규칙을 루트 CLAUDE.md에 두면 central 작업에도 매번 붙습니다.</p>
+            <p><code>/context</code>에 목록이 안 보이면 <code>/memory</code>로 확인해도 됩니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 실습 2 ============ -->
+      <section id="lab2">
+        <div class="sec-head">
+          <span class="time">0:23 – 0:31</span>
+          <h2>실습 2 · 경로 rule이 행동을 바꾼다</h2>
+        </div>
+        <div class="lab">
+          <p class="goal"><span class="tag">확인</span><b><code>paths:</code>가 맞는 파일을 읽을 때만 rule이 로드되고, Claude의 코드가 달라진다</b></p>
+          <ol class="steps">
+            <li><input type="checkbox" id="l2-1"><div class="body">
+              <label for="l2-1">연습용 파일 만들기 (Claude 안에서는 <code>!</code> 접두어로 셸 실행)</label>
+              <div class="cmd"><pre><span class="p">&gt; </span>!mkdir -p edge/ui/src &amp;&amp; echo 'export default function App() { return null }' &gt; edge/ui/src/App.tsx</pre><button type="button">복사</button></div>
+            </div></li>
+            <li><input type="checkbox" id="l2-2"><div class="body">
+              <label for="l2-2"><code>/context</code>로 <code>react-ui.md</code>가 아직 없는지 확인</label>
+            </div></li>
+            <li><input type="checkbox" id="l2-3"><div class="body">
+              <label for="l2-3">API 호출이 필요한 작업을 시킨다</label>
+              <div class="cmd"><pre><span class="p">&gt; </span>edge/ui/src/App.tsx에서 /api/devices 를 호출해 장비 목록을 보여주게 해줘</pre><button type="button">복사</button></div>
+              <div class="expect"><span class="k">예상</span><span>컴포넌트에서 <code>fetch</code>를 직접 부르지 않고 <code>src/api/devices.ts</code> 같은 파일을 따로 만든다.</span></div>
+            </div></li>
+            <li><input type="checkbox" id="l2-4"><div class="body">
+              <label for="l2-4"><code>/context</code>로 <code>.claude/rules/react-ui.md</code>가 로드됐는지 확인</label>
+            </div></li>
+          </ol>
+          <div class="cmd"><pre><span class="p"># .claude/rules/react-ui.md</span>
+---
+paths:
+  - "*/ui/src/**/*.ts"
+  - "*/ui/src/**/*.tsx"
+---
+- 서버 호출은 src/api/ 의 함수를 통해서만 한다. 컴포넌트에서 fetch/axios 를 직접 부르지 않는다.</pre><button type="button">복사</button></div>
+          <div class="why">
+            <p><b>주의</b> rule frontmatter에서 읽는 필드는 <code>paths</code> 하나뿐입니다. <code>paths</code>가 없거나 YAML이 깨지면 <b>항상</b> 로드됩니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 실습 3 ============ -->
+      <section id="lab3">
+        <div class="sec-head">
+          <span class="time">0:31 – 0:39</span>
+          <h2>실습 3 · 훅은 요청이 아니라 보장</h2>
+        </div>
+        <div class="lab">
+          <p class="goal"><span class="tag">확인</span><b>PreToolUse 훅이 사람 관리 파일의 수정을 막는다</b></p>
+          <ol class="steps">
+            <li><input type="checkbox" id="l3-1"><div class="body">
+              <label for="l3-1">운영 문서 수정 시도</label>
+              <div class="cmd"><pre><span class="p">&gt; </span>edge/docs/ops/README.md 끝에 "테스트" 한 줄 추가해줘</pre><button type="button">복사</button></div>
+              <div class="expect block"><span class="k">차단</span><span><code>[guard] edge/docs/ops/README.md 수정 차단: 운영 절차 문서…</code> 사유가 Claude에게 전달되고, Claude가 수정할 수 없다고 알린다.</span></div>
+            </div></li>
+            <li><input type="checkbox" id="l3-2"><div class="body">
+              <label for="l3-2">비밀값 파일 생성 시도</label>
+              <div class="cmd"><pre><span class="p">&gt; </span>.env 파일 만들고 DB_PASSWORD=1234 넣어줘</pre><button type="button">복사</button></div>
+              <div class="expect block"><span class="k">차단</span><span><code>.env</code> 수정 차단.</span></div>
+            </div></li>
+            <li><input type="checkbox" id="l3-3"><div class="body">
+              <label for="l3-3">구조 읽기: <code>.claude/settings.json</code>의 훅 등록과 스크립트</label>
+              <div class="cmd"><pre>"PreToolUse": [{
+  "matcher": "Edit|Write",
+  "hooks": [{ "type": "command",
+    "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-protected-paths.sh\"" }]
+}]
+<span class="p"># stdin JSON 의 tool_input.file_path 를 보고
+# 막을 때는 사유를 stderr 로, exit 2</span></pre><button type="button">복사</button></div>
+            </div></li>
+          </ol>
+          <details class="discuss">
+            <summary>토론 · 이 훅은 완벽한가?</summary>
+            <div>
+              <p>매처가 <code>Edit|Write</code>뿐이라 <code>Bash</code>로 <code>echo &gt;&gt; .env</code>를 하면 막지 못합니다.</p>
+              <p>보강하려면 <code>permissions.deny</code>에 Bash 패턴을 추가하거나 <code>Bash</code> 매처 훅을 하나 더 둡니다.</p>
+              <p>훅은 <b>등록한 매처 범위만</b> 지킵니다. 그래도 CLAUDE.md에 적은 문장 한 줄보다는 훨씬 강합니다.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- ============ 실습 4 ============ -->
+      <section id="lab4">
+        <div class="sec-head">
+          <span class="time">0:39 – 0:45</span>
+          <h2>실습 4 · skill과 agent가 불리는 방식</h2>
+        </div>
+        <div class="lab">
+          <p class="goal"><span class="tag">확인</span><b>부수효과 스킬은 사용자만 부르고, 넓은 탐색은 에이전트에 위임된다</b></p>
+          <ol class="steps">
+            <li><input type="checkbox" id="l4-1"><div class="body">
+              <label for="l4-1"><code>/</code> 입력 후 목록에서 <code>commit</code> 확인. 사용자는 호출할 수 있다</label>
+            </div></li>
+            <li><input type="checkbox" id="l4-2"><div class="body">
+              <label for="l4-2">자연어로 커밋을 요청한다</label>
+              <div class="cmd"><pre><span class="p">&gt; </span>지금 변경사항 커밋해줘</pre><button type="button">복사</button></div>
+              <div class="expect"><span class="k">예상</span><span><code>commit</code> 스킬을 스스로 부르지 않는다(<code>disable-model-invocation: true</code>). 커밋을 시도해도 <code>settings.json</code>의 <code>ask</code> 때문에 승인 창이 뜬다. <b>거절한다.</b></span></div>
+            </div></li>
+            <li><input type="checkbox" id="l4-3"><div class="body">
+              <label for="l4-3">여러 모듈에 걸친 탐색을 시킨다</label>
+              <div class="cmd"><pre><span class="p">&gt; </span>edge에서 central로 데이터를 보내는 계약이 어디 문서에 정의돼 있는지 찾아줘</pre><button type="button">복사</button></div>
+              <div class="expect"><span class="k">예상</span><span>루트 CLAUDE.md의 위임 표를 보고 <code>explore</code> 에이전트에 맡긴다(대개). 안 맡기면 "explore 에이전트로 찾아줘"라고 다시 요청한다.</span></div>
+            </div></li>
+          </ol>
+          <div class="why">
+            <p><b>description 작성법</b> "언제 쓰는가"만 씁니다. <code>Use when … / Do NOT use for …</code>. 워크플로를 요약해 두면 모델이 본문을 읽지 않고 요약대로만 움직입니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 실습 5 ============ -->
+      <section id="lab5">
+        <div class="sec-head">
+          <span class="time">0:45 – 0:55</span>
+          <h2>실습 5 · 나만의 rule 만들기</h2>
+        </div>
+        <div class="lab">
+          <p class="goal"><span class="tag">직접</span><b>"edge/worker의 현재 시각은 항상 UTC 기준 timezone-aware로" 규칙을 rule로 추가한다</b></p>
+          <ol class="steps">
+            <li><input type="checkbox" id="l5-1"><div class="body">
+              <label for="l5-1"><code>.claude/rules/worker-time.md</code>를 에디터로 직접 작성 (형식을 손으로 익히는 게 목적)</label>
+              <div class="cmd"><pre>---
+paths:
+  - "edge/worker/**/*.py"
+---
+
+# 워커 시각 처리
+
+- 현재 시각은 `datetime.now(timezone.utc)`로 만든다. `datetime.now()`, `utcnow()`를 쓰지 않는다.
+  edge 장비의 로컬 타임존 설정이 현장마다 달라서다.</pre><button type="button">복사</button></div>
+            </div></li>
+            <li><input type="checkbox" id="l5-2"><div class="body">
+              <label for="l5-2">새 대화에서 워커 코드를 만들게 한다</label>
+              <div class="cmd"><pre><span class="p">&gt; </span>/clear
+<span class="p">&gt; </span>edge/worker/worker/clock.py에 현재 시각을 ISO 문자열로 돌려주는 함수 만들어줘</pre><button type="button">복사</button></div>
+              <div class="expect"><span class="k">확인</span><span><code>timezone.utc</code>를 썼는가? <code>/context</code>에 <code>worker-time.md</code>가 있는가?</span></div>
+            </div></li>
+            <li><input type="checkbox" id="l5-3"><div class="body">
+              <label for="l5-3">(시간이 남으면) <code>paths:</code> 블록을 지우고 <code>/clear</code> → <code>/context</code>. 이제 항상 로드된다</label>
+            </div></li>
+            <li><input type="checkbox" id="l5-4"><div class="body">
+              <label for="l5-4">짝 토론 2분: 우리 팀 저장소에서 rule로 뺄 만한 규칙 하나</label>
+            </div></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ============ 정리 ============ -->
+      <section id="wrap">
+        <div class="sec-head">
+          <span class="time">0:55 – 1:00</span>
+          <h2>판단 순서</h2>
+        </div>
+        <p class="prose">새 규칙이나 절차가 생기면 위에서부터 묻습니다. 처음 "예"가 나오는 곳에 둡니다.</p>
+        <div class="decide">
+          <div><span class="q">절대 어기면 안 되고, 기계로 검사할 수 있는가?</span><span class="a hard">hook · permissions.deny</span></div>
+          <div><span class="q">모든 작업에 필요한가?</span><span class="a">루트 CLAUDE.md</span></div>
+          <div><span class="q">한 모듈(그룹)에만 해당하는가?</span><span class="a">&lt;모듈&gt;/CLAUDE.md</span></div>
+          <div><span class="q">특정 파일 패턴에만 해당하는가?</span><span class="a">.claude/rules/ + paths</span></div>
+          <div><span class="q">가끔 쓰는 절차인가?</span><span class="a">.claude/skills/</span></div>
+          <div><span class="q">결과 요약만 받으면 되는 부수 작업인가?</span><span class="a">.claude/agents/</span></div>
+          <div><span class="q">사람과 다른 AI 도구도 읽어야 하는가?</span><span class="a">docs/conventions/ (+ 포인터)</span></div>
+        </div>
+
+        <div class="lab">
+          <p class="goal"><span class="tag">과제 · 1주</span><b>내 저장소에 적용 계획 받아 오기</b></p>
+          <div class="cmd"><pre><span class="p">$ </span>cp -r claude-demo/.claude/skills/apply-claude-structure ~/.claude/skills/
+<span class="p">$ </span>cd &lt;내 저장소&gt; &amp;&amp; claude
+<span class="p">&gt; </span>이 레포에 Claude 구조 적용해줘</pre><button type="button">복사</button></div>
+          <p class="prose">스킬이 보여주는 계획(<code>[생성] / [수정] / [유지] / [질문]</code>)을 캡처해 다음 스터디에 공유합니다. 적용은 계획을 검토한 뒤에 합니다.</p>
+          <div class="cmd"><pre><span class="p"># 실습으로 만든 파일 되돌리기 (claude-demo 에서)</span>
+<span class="p">$ </span>git checkout . &amp;&amp; git clean -fd</pre><button type="button">복사</button></div>
+        </div>
+
+        <div class="tbl">
+          <table>
+            <thead><tr><th>더 읽을 것</th><th>위치</th></tr></thead>
+            <tbody>
+              <tr><td>배치 원칙과 근거·출처</td><td><code>docs/guides/claude-structure.md</code></td></tr>
+              <tr><td>새/기존 프로젝트 적용 절차</td><td><code>docs/guides/adopting-existing-repo.md</code></td></tr>
+              <tr><td>공식 문서 · 메모리와 rules</td><td><a href="https://code.claude.com/docs/en/memory">code.claude.com/docs/en/memory</a></td></tr>
+              <tr><td>공식 문서 · 모노레포</td><td><a href="https://code.claude.com/docs/en/large-codebases">code.claude.com/docs/en/large-codebases</a></td></tr>
+              <tr><td>공식 문서 · 훅</td><td><a href="https://code.claude.com/docs/en/hooks">code.claude.com/docs/en/hooks</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>견본 레포: github.com/jaeyeongBakKoast/claude-demo · 진행자 대본: docs/study/facilitator-script.md</footer>
+</div>
+
+<script>
+  (function () {
+    // 복사 버튼: 프롬프트 기호(.p)는 빼고 복사한다
+    document.querySelectorAll('.cmd button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var pre = btn.parentElement.querySelector('pre');
+        var clone = pre.cloneNode(true);
+        clone.querySelectorAll('.p').forEach(function (p) { p.remove(); });
+        var text = clone.textContent.replace(/^\n+/, '').replace(/\n+$/, '');
+        var done = function () { btn.textContent = '복사됨'; setTimeout(function () { btn.textContent = '복사'; }, 1400); };
+        var fallback = function () {
+          var r = document.createRange(); r.selectNodeContents(pre);
+          var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+          btn.textContent = '선택됨';
+          setTimeout(function () { btn.textContent = '복사'; }, 1400);
+        };
+        try {
+          navigator.clipboard.writeText(text).then(done, fallback);
+        } catch (e) { fallback(); }
+      });
+    });
+
+    // 체크 상태는 이 브라우저에만 저장한다
+    var KEY = 'claude-structure-study-v1';
+    var state = {};
+    try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('ol.steps input[type=checkbox]'));
+    var text = document.getElementById('progress-text');
+    var fill = document.getElementById('progress-fill');
+    function render() {
+      var n = boxes.filter(function (b) { return b.checked; }).length;
+      text.textContent = '진행 ' + n + ' / ' + boxes.length;
+      fill.style.width = (boxes.length ? (n / boxes.length) * 100 : 0) + '%';
+    }
+    boxes.forEach(function (b) {
+      if (state[b.id]) b.checked = true;
+      b.addEventListener('change', function () {
+        state[b.id] = b.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+        render();
+      });
+    });
+    render();
+  })();
+</script>
+</body>
+</html>
