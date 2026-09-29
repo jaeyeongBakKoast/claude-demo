@@ -17,7 +17,13 @@ Claude Code, Cursor, Codex 등 모든 AI 에이전트와 새로 합류한 사람
 프로젝트 루트
 ├── docs/
 │   ├── conventions/        스택별 코드 컨벤션 (모든 모듈·모든 도구 공용 SSOT)
+│   ├── product/            요구사항·액터·유스케이스·화면·API·인터페이스·ERD·아키텍처·추적표 (살아 있는 문서)
+│   ├── stories/            스토리별 진행 기록 (story · design · review)
+│   ├── quality/            시험 계획·결과, 성능, 보안·접근성 점검
+│   ├── manuals/            사용자·운영자 매뉴얼
+│   ├── deliverables/       제출 산출물 목록표와 원본 대응
 │   └── guides/             Claude Code 구조 가이드, 기존 저장소 적용 절차
+├── tools/deliverables/     테이블 정의서·프로그램 목록·단위 시험 결과서 생성 스크립트
 ├── edge/                   현장 장비 시스템
 │   ├── api/                Spring Boot — 수집 데이터 API, 중앙 전송
 │   ├── ui/                 React — 현장 대시보드
@@ -54,3 +60,5 @@ Claude Code, Cursor, Codex 등 모든 AI 에이전트와 새로 합류한 사람
 - 코드 컨벤션은 [docs/conventions/](docs/conventions/)가 기준이다. 작업 전에 해당 문서를 읽는다
 - 커밋은 `type(scope): 한국어 요약` ([docs/conventions/commit.md](docs/conventions/commit.md))
 - 요청하지 않은 리팩토링을 하지 않는다
+- 기능 추가·변경은 스토리 단위로 진행하고 중간 산출물을 남긴다 ([docs/guides/development-process.md](docs/guides/development-process.md))
+- 제품 문서(`docs/product/`)는 스토리가 끝날 때 코드와 일치해야 한다. `generated/`는 스크립트로만 만든다

@@ -45,7 +45,8 @@ argument-hint: "[대상 저장소 경로 (기본: 현재 디렉터리)]"
 [생성] 경로 — 한 줄 이유
 [수정] 경로 — 무엇을 바꾸는지 (기존 내용은 어디로 옮기는지)
 [유지] 경로 — 손대지 않는 이유
-[질문] 결정이 필요한 것 (예: 커밋 컨벤션, 문서 언어, 보호할 폴더)
+[질문] 결정이 필요한 것 (예: 커밋 컨벤션, 문서 언어, 보호할 폴더,
+       스토리 흐름·산출물 체계(docs/product, docs/stories, story-* 스킬) 도입 여부)
 ```
 
 ## 3단계 — 적용 (승인 후)
@@ -60,7 +61,8 @@ argument-hint: "[대상 저장소 경로 (기본: 현재 디렉터리)]"
 5. `.claude/rules/` ← `templates/rule.md`. 주제당 한 파일, `paths` 필수. 처음엔 3–5개로 시작한다
 6. `.claude/settings.json` ← `templates/settings.json`. 보호할 파일을 `deny`에, 명령을 `allow`에
 7. `.claude/hooks/` ← `templates/hooks/`. 보호 경로 차단(PreToolUse), 바뀐 파일 lint(PostToolUse).
-   `guard`의 `case` 패턴과 `lint`의 `UI_MODULES`·`PY_MODULES`를 조사 결과로 채우고 `chmod +x` 한다
+   `guard`의 `case` 패턴과 `lint`의 `UI_MODULES`·`PY_MODULES`를 조사 결과로 채우고 `chmod +x` 한다.
+   스토리 흐름을 도입하기로 했으면 `story-context.sh`(UserPromptSubmit)도 넣는다. 도입하지 않으면 `settings.json`에서 그 항목을 뺀다
 8. `.claude/agents/` — 처음엔 `explore`, `debugger`만. 나머지는 필요가 보일 때 추가한다
 9. `.gitignore`에 `templates/gitignore.snippet` 추가
 10. 기존 `.cursor/rules` 등은 지우지 않는다. 옮긴 뒤 원본을 어떻게 할지 사용자에게 묻는다

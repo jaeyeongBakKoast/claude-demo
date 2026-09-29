@@ -20,12 +20,23 @@
 │   ├── agents/                    explore, debugger, architect, test-engineer, security-reviewer, git-master, writer
 │   └── skills/
 │       ├── apply-claude-structure/  ★ 기존 저장소에 이 구조를 적용하는 스킬 (+ 템플릿)
+│       ├── product-discovery/       ★ 요구사항·액터·유스케이스·화면·ERD 뼈대
+│       ├── story-new/ story-design/ story-build/ story-review/  ★ 스토리 단위 애자일 흐름
+│       ├── deliverables-export/     제출본(HWPX·DOCX) 생성
+│       ├── hwpxskill/               한글 HWPX (git submodule)
 │       ├── scaffolding-crud-api/    도메인 워크플로 스킬 예시
 │       └── commit/                  부수효과 스킬 예시 (사용자 호출 전용)
+├── tools/deliverables/            테이블 정의서·프로그램 목록·단위 시험 결과서 생성 (Python 표준 라이브러리)
 ├── docs/
+│   ├── product/                   ★ 요구사항·액터·UC·화면·API·IF·ERD·아키텍처·추적표
+│   ├── stories/                   ★ 스토리별 story · design · review
+│   ├── quality/                   시험 계획·결과, 성능, 보안·접근성
+│   ├── manuals/                   사용자·운영자 매뉴얼
+│   ├── deliverables/              ★ 공공 용역·R&D 산출물 목록표 ↔ 원본
 │   ├── conventions/               코드 컨벤션 SSOT (사람·모든 AI 공용)
 │   └── guides/
 │       ├── claude-structure.md    ★ 베스트 프랙티스와 근거·출처
+│       ├── development-process.md ★ 애자일 + 산출물 개발 프로세스
 │       └── adopting-existing-repo.md  ★ 새/기존 프로젝트 적용 절차
 ├── edge/                          모듈 그룹 예시 1
 │   ├── CLAUDE.md                  그룹 공통 (동작 환경, 모듈 간 계약)
@@ -48,9 +59,29 @@
    └─ "CRUD 만들어줘" ─→ scaffolding-crud-api 본문 로드
 ```
 
+## 개발 흐름 (애자일 + 산출물)
+
+```text
+product-discovery ─→ 백로그(requirements.md)
+      │
+      ▼  스토리마다 (브랜치 feat/S-###-…)
+story-new ─승인①→ story-design ─승인②→ story-build ─→ story-review ─수락③→ done
+story.md          UC·화면·API·ERD 갱신    코드·테스트        review.md
+                  design.md(작업 목록)     design.md 로그     추적표·통합시험
+      │
+      ▼  단계 말
+/deliverables-export ─→ 요구사항 정의서, 화면 설계서, 테이블 정의서 … (HWPX·DOCX)
+```
+
+각 단계에서 Claude에게 뭐라고 말하고, 무엇이 생기고, 사람이 무엇을 승인하는지는
+**[docs/guides/development-process.md](docs/guides/development-process.md)**에 있다 (공공 용역 단계·감리, R&D 대응 포함).
+
+clone할 때 submodule(hwpxskill)도 받는다: `git clone --recurse-submodules <URL>`
+(이미 받았으면 `git submodule update --init`).
+
 ## 쓰는 법
 
-- **처음 읽을 문서**: [docs/guides/claude-structure.md](docs/guides/claude-structure.md)
+- **처음 읽을 문서**: [docs/guides/claude-structure.md](docs/guides/claude-structure.md) (구조), [docs/guides/development-process.md](docs/guides/development-process.md) (개발 프로세스·산출물)
 - **적용하기**: [docs/guides/adopting-existing-repo.md](docs/guides/adopting-existing-repo.md)
   — 새 프로젝트는 복사 후 `<...>` 채우기, 기존 프로젝트는 `apply-claude-structure` 스킬 사용
 - **팀 스터디(60분 실습)**: [docs/study/study.html](docs/study/study.html) (참가자용), [docs/study/facilitator-script.md](docs/study/facilitator-script.md) (진행자 대본)

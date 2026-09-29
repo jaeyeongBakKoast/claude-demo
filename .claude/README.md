@@ -40,9 +40,14 @@
 
 | 종류 | 이름 | 용도 |
 |---|---|---|
+| hook | `hooks/story-context.sh` | UserPromptSubmit — 현재 스토리·상태·다음 단계를 요청마다 알림 (막지 않음) |
 | hook | `hooks/guard-protected-paths.sh` | PreToolUse — `.env`·비밀·운영 문서 수정 차단 |
 | hook | `hooks/lint-changed-file.sh` | PostToolUse — 바뀐 파일만 eslint/ruff |
-| rule | `rules/*.md` | Java 테스트, React, Python, SQL, 운영 문서, Claude 자산 |
+| rule | `rules/*.md` | Java 테스트, React, Python, SQL, 운영 문서, Claude 자산, 제품 문서, 스토리 |
+| skill | `product-discovery` | 액터·요구사항 백로그·UC·화면 목록·초기 ERD 뼈대 |
+| skill | `story-new` → `story-design` → `story-build` → `story-review` | 스토리 단위 애자일 흐름과 중간 산출물 |
+| skill | `deliverables-export` | 제출본(HWPX·DOCX) 생성 (사용자 호출 전용) |
+| skill | `hwpxskill` | 한글 HWPX 생성·편집. **git submodule** (github.com/Canine89/hwpxskill, 라이선스 미표기라 복사하지 않고 연결) |
 | agent | `explore`, `debugger`, `architect`, `test-engineer`, `security-reviewer`, `git-master`, `writer` | 루트 CLAUDE.md의 위임 표 참고 |
 | skill | `apply-claude-structure` | 기존 저장소에 이 구조를 적용 |
 | skill | `scaffolding-crud-api` | 테이블 기반 CRUD API 골격 생성 (도메인 워크플로 예시) |

@@ -5,6 +5,7 @@
       "Bash(./gradlew *)",
       "Bash(npm run *)",
       "Bash(uv run *)",
+      "Bash(python3 tools/deliverables/*)",
       "Bash(git status)",
       "Bash(git diff *)",
       "Bash(git log *)"
@@ -23,6 +24,17 @@
     ]
   },
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/story-context.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write",

@@ -28,9 +28,21 @@ docs: Claude Code 적용 가이드 추가
 - 규칙·도구 도입은 그 규칙을 적용한 코드 변경과 같은 커밋에 넣는다.
 - `git add .`를 쓰지 않고 파일을 명시한다.
 
+## 스토리 연결
+
+스토리 작업의 커밋은 본문 마지막 줄에 스토리 번호를 적는다.
+
+```text
+feat(api): 장비 상태 목록 API 추가
+
+Story: S-007
+```
+
 ## 브랜치
 
-`<type>/<짧은-설명>` — 예: `feat/device-status-api`, `fix/worker-retry`
+- 스토리 작업: `<type>/S-###-<짧은-설명>` — 예: `feat/S-007-device-status-list`.
+  훅이 브랜치 이름의 `S-###`로 현재 스토리를 찾는다.
+- 스토리 없는 작업: `<type>/<짧은-설명>` — 예: `fix/worker-retry`, `docs/typo`
 
 ## PR 본문
 

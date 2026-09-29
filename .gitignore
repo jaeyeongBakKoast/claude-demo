@@ -15,6 +15,9 @@ __pycache__/
 !.env.example
 **/secrets/
 
+# --- 제출본 (원본에서 매번 생성) ---
+docs/deliverables/out/
+
 # --- 에디터 ---
 .idea/
 .vscode/*

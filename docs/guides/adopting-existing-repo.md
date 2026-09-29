@@ -63,6 +63,8 @@ cp -r <견본>/.claude/skills/apply-claude-structure ~/.claude/skills/
 5. **rules 3–5개** — Claude가 반복해서 틀리는 것만
 6. **agents** — `explore`, `debugger`부터. 위임할 일이 실제로 생기면 추가
 7. **도메인 skill** — 같은 절차를 세 번 설명했으면 skill로
+8. **스토리 흐름·산출물 체계** (선택) — `docs/product/`, `docs/stories/`, `story-*` 스킬, `story-context.sh` 훅.
+   산출물 제출이 있는 공공 용역·R&D라면 권한다. 도입 절차는 [development-process.md 9절](development-process.md#9-기존-프로젝트에-도입하기)
 
 ## 검증
 
