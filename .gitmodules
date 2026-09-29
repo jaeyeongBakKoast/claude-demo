@@ -1,0 +1,3 @@
+[submodule ".claude/skills/hwpxskill"]
+	path = .claude/skills/hwpxskill
+	url = https://github.com/Canine89/hwpxskill.git
