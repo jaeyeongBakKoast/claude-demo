@@ -210,6 +210,38 @@
 
   footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
 
+
+  /* ---------- components ---------- */
+  .comps { display: grid; gap: 16px; }
+  .comp {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; padding: 22px 24px;
+  }
+  .comp.hard { border-color: color-mix(in srgb, var(--block) 40%, var(--line)); }
+  .comp .id { display: grid; gap: 6px; align-content: start; }
+  .comp .id h3 { font-size: 19px; }
+  .comp .id .path { font-family: var(--mono); font-size: 12.5px; color: var(--muted); display: grid; gap: 2px; }
+  .comp .id .load {
+    justify-self: start; font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+    padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+  }
+  .comp.hard .id .load { background: var(--block-soft); color: var(--block); }
+  .comp .id .lablink { font-size: 13px; }
+  .comp dl { margin: 0; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px 16px; font-size: 15px; }
+  .comp dt { color: var(--muted); font-size: 13px; padding-top: 2px; }
+  .comp dd { margin: 0; }
+  .comp dd ul { margin: 0; padding-left: 1.1em; display: grid; gap: 3px; }
+  .role {
+    display: grid; gap: 6px; background: var(--bg); border: 1px solid var(--line);
+    border-radius: 8px; padding: 12px 16px; font-size: 15px;
+  }
+  .role .k { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  @media (max-width: 880px) {
+    .comp { grid-template-columns: 1fr; gap: 14px; padding: 18px; }
+    .comp dl { grid-template-columns: 1fr; gap: 2px; }
+    .comp dd { margin-bottom: 8px; }
+  }
+
   @media (max-width: 880px) {
     .layout { grid-template-columns: 1fr; gap: 24px; }
     nav.toc { position: static; }
@@ -242,6 +274,7 @@
       <ol>
         <li><a href="#prep"><span class="t">준비</span><span>사전 준비</span></a></li>
         <li><a href="#concept"><span class="t">05′</span><span>로드 시점 = 비용</span></a></li>
+        <li><a href="#parts"><span class="t">읽기</span><span>구성 요소 설명</span></a></li>
         <li><a href="#lab1"><span class="t">13′</span><span>실습 1 · 계층 로딩</span></a></li>
         <li><a href="#lab2"><span class="t">23′</span><span>실습 2 · 경로 rule</span></a></li>
         <li><a href="#lab3"><span class="t">31′</span><span>실습 3 · 훅</span></a></li>
@@ -337,6 +370,50 @@
         </details>
       </section>
 
+
+      <!-- ============ 구성 요소 ============ -->
+      <section id="parts">
+        <div class="sec-head">
+          <span class="time">사전 읽기 · 10분</span>
+          <h2>구성 요소 설명</h2>
+        </div>
+        <p class="prose">스터디 전에 읽어 오면 좋습니다. 각 구성 요소가 무엇이고, 무엇을 할 수 있고, 언제 쓰는지 정리했습니다. 붉은 테두리는 모델의 판단과 상관없이 <b>강제되는</b> 장치입니다.</p>
+        <div class="comps">
+          <article class="comp">
+            <div class="id"><h3>CLAUDE.md</h3><div class="path"><span>CLAUDE.md</span><span>edge/CLAUDE.md</span><span>edge/api/CLAUDE.md</span></div><span class="load">항상 · 폴더 진입 시</span><a class="lablink" href="#lab1">→ 실습 1</a></div>
+            <dl><dt>무엇인가</dt><dd>Claude Code가 자동으로 읽는 <b>메모리 파일</b>입니다. 저장소 루트의 파일은 세션 시작 때, 하위 폴더의 파일은 그 폴더의 파일을 처음 읽을 때 대화에 붙습니다.</dd><dt>할 수 있는 것</dt><dd><ul><li>빌드·테스트 명령, 저장소 관례, 금지사항처럼 <b>매번 알아야 하는 사실</b> 전달</li><li>"이 작업이면 이 문서를 먼저 읽어라" 같은 <b>문서 인덱스</b></li><li><code>@경로</code>로 다른 파일 가져오기 (예: <code>@AGENTS.md</code>)</li><li>개인용은 <code>CLAUDE.local.md</code>에 (커밋하지 않음)</li></ul></dd><dt>이럴 때</dt><dd>모든 작업(루트) 또는 한 모듈의 모든 작업(모듈 파일)에 필요한 것</dd><dt>이러지 않는다</dt><dd>코드를 읽으면 알 수 있는 것, 가끔만 필요한 절차, 반드시 지켜야 하는 금지 — 각각 코드 자체·skill·hook으로</dd><dt>견본의 예</dt><dd>루트: 문서 인덱스·위임 표·커밋 규칙 (55줄). <code>edge/CLAUDE.md</code>: 네트워크 단절 전제, 모듈 간 계약</dd></dl>
+          </article>
+          <article class="comp">
+            <div class="id"><h3>AGENTS.md</h3><div class="path"><span>AGENTS.md</span></div><span class="load">항상 (@import)</span><span class="lablink" style="color:var(--muted)">실습 없음 · 읽기</span></div>
+            <dl><dt>무엇인가</dt><dd>Cursor, Codex 등 여러 AI 도구가 함께 읽는 <b>공개 표준</b> 지침 파일입니다. "에이전트를 위한 README"입니다.</dd><dt>할 수 있는 것</dt><dd>프로젝트 개요·구조·빌드 명령을 도구와 상관없이 한 곳에 두기</dd><dt>이럴 때</dt><dd>팀에서 Claude 말고 다른 AI 도구도 쓰거나, 새로 온 사람도 읽을 개요가 필요할 때</dd><dt>주의</dt><dd>CLAUDE.md가 있으면 Claude Code는 AGENTS.md를 자동으로 읽지 않습니다. 그래서 CLAUDE.md 첫 줄에 <code>@AGENTS.md</code>를 씁니다.</dd></dl>
+          </article>
+          <article class="comp">
+            <div class="id"><h3>Rule</h3><div class="path"><span>.claude/rules/*.md</span></div><span class="load">파일 패턴이 맞을 때</span><a class="lablink" href="#lab2">→ 실습 2, 5</a></div>
+            <dl><dt>무엇인가</dt><dd><code>paths:</code> 글로브를 가진 <b>조건부 메모리</b>입니다. Claude가 그 패턴의 파일을 읽을 때만 대화에 붙습니다.</dd><dt>할 수 있는 것</dt><dd><ul><li>테스트 파일, 매퍼 XML, <code>.tsx</code>처럼 <b>여러 모듈에 흩어진 같은 종류의 파일</b>에 규칙 적용</li><li>평소엔 컨텍스트를 차지하지 않다가 필요할 때만 등장</li></ul></dd><dt>이럴 때</dt><dd>Claude가 특정 종류의 파일에서 반복해서 틀리는 것</dd><dt>주의</dt><dd>읽는 필드는 <code>paths</code> 하나뿐. 없거나 YAML이 깨지면 항상 로드됩니다.</dd><dt>견본의 예</dt><dd><code>react-ui.md</code> (컴포넌트에서 fetch 금지), <code>java-tests.md</code>, <code>sql-ddl.md</code></dd></dl>
+          </article>
+          <article class="comp">
+            <div class="id"><h3>Skill</h3><div class="path"><span>.claude/skills/&lt;이름&gt;/SKILL.md</span><span>edge/.claude/skills/</span></div><span class="load">쓸 때만</span><a class="lablink" href="#lab4">→ 실습 1, 4</a></div>
+            <dl><dt>무엇인가</dt><dd>이름·description·본문을 가진 <b>재사용 절차 묶음</b>입니다. 평소에는 description만 보이고, 필요할 때 본문과 부속 파일을 읽습니다.</dd><dt>할 수 있는 것</dt><dd><ul><li>Claude가 요청에 맞춰 <b>스스로 호출</b>하거나, 사용자가 <code>/이름</code>으로 호출</li><li><code>references/</code> 템플릿·예시, <code>scripts/</code> 스크립트를 함께 묶기</li><li><code>disable-model-invocation: true</code>로 사용자만 부르게 (커밋·배포)</li><li><code>allowed-tools</code>, <code>argument-hint</code>로 도구·인자 지정</li><li>하위 폴더 <code>.claude/skills/</code>는 그 폴더에 들어갈 때 발견</li></ul></dd><dt>이럴 때</dt><dd>같은 절차를 세 번 설명했을 때. "정해진 결정"이 있는 반복 작업 (CRUD 골격, 배포 점검, 구조 적용)</dd><dt>주의</dt><dd>description에는 "언제 쓰는가"만. 절차를 요약하면 본문을 안 읽고 요약대로 움직입니다. 옛 <code>.claude/commands/</code> 대신 skill을 씁니다.</dd><dt>견본의 예</dt><dd><code>apply-claude-structure</code>, <code>scaffolding-crud-api</code>, <code>commit</code>, <code>edge-release-check</code></dd></dl>
+          </article>
+          <article class="comp">
+            <div class="id"><h3>Agent (서브에이전트)</h3><div class="path"><span>.claude/agents/*.md</span></div><span class="load">위임할 때 · 별도 컨텍스트</span><a class="lablink" href="#lab4">→ 실습 4</a></div>
+            <dl><dt>무엇인가</dt><dd>자기만의 시스템 프롬프트·도구·모델을 가진 <b>보조 Claude</b>입니다. 메인 대화와 분리된 컨텍스트에서 일하고 결과 요약만 돌려줍니다.</dd><dt>할 수 있는 것</dt><dd><ul><li>파일 수십 개를 뒤지는 탐색을 맡겨 <b>메인 대화의 컨텍스트를 보호</b></li><li><code>disallowedTools</code>로 읽기 전용 검토자 만들기</li><li><code>model</code>로 역할별 모델 배정 (탐색 haiku, 보안 opus)</li><li>여러 개를 병렬로 돌리기</li></ul></dd><dt>이럴 때</dt><dd>중간 과정은 필요 없고 결론만 필요한 작업: 넓은 탐색, 디버깅, 보안 검토, 커밋 나누기</dd><dt>이러지 않는다</dt><dd>파일 하나 읽기·고치기 — 위임 비용이 더 큽니다</dd><dt>견본의 예</dt><dd><code>explore</code>, <code>debugger</code>, <code>architect</code>, <code>security-reviewer</code> 등 7개</dd></dl>
+          </article>
+          <article class="comp hard">
+            <div class="id"><h3>Hook</h3><div class="path"><span>.claude/hooks/*.sh</span><span>settings.json → hooks</span></div><span class="load">이벤트 발생 시 · 결정적</span><a class="lablink" href="#lab3">→ 실습 3</a></div>
+            <dl><dt>무엇인가</dt><dd>Claude Code의 <b>이벤트에 붙는 셸 명령</b>입니다. 모델이 판단하지 않고 하네스가 실행합니다.</dd><dt>할 수 있는 것</dt><dd><ul><li><code>PreToolUse</code>: 도구 실행 전에 검사하고 <code>exit 2</code>로 <b>차단</b> (사유가 Claude에게 전달)</li><li><code>PostToolUse</code>: 수정 직후 <b>lint·format 자동 실행</b>, 위반을 Claude에게 돌려 고치게</li><li><code>SessionStart</code>, <code>UserPromptSubmit</code>: 대화에 <b>컨텍스트 주입</b></li><li><code>Stop</code>, <code>Notification</code>: 작업 끝 알림, 로깅</li><li><code>matcher</code>로 대상 도구 지정 (<code>Edit|Write</code>, <code>Bash</code> …)</li></ul></dd><dt>이럴 때</dt><dd>"절대 ~하지 마라", "항상 ~해라" 중 <b>기계로 검사할 수 있는 것</b></dd><dt>주의</dt><dd>등록한 matcher 범위만 지킵니다 (<code>Edit|Write</code> 훅은 Bash 우회를 못 막음). 도구가 없는 환경에선 조용히 통과하게 만듭니다.</dd><dt>견본의 예</dt><dd><code>guard-protected-paths.sh</code> (.env·docs/ops 차단), <code>lint-changed-file.sh</code> (eslint·ruff)</dd></dl>
+          </article>
+          <article class="comp hard">
+            <div class="id"><h3>Permissions</h3><div class="path"><span>.claude/settings.json → permissions</span></div><span class="load">항상 · 결정적</span><a class="lablink" href="#lab4">→ 실습 4</a></div>
+            <dl><dt>무엇인가</dt><dd>도구 사용을 <b>허용·확인·거부</b>하는 규칙입니다. 평가 순서는 deny → ask → allow.</dd><dt>할 수 있는 것</dt><dd><ul><li><code>allow</code>: 자주 쓰는 안전한 명령은 묻지 않기 (<code>Bash(./gradlew *)</code>)</li><li><code>ask</code>: 커밋·푸시는 항상 확인</li><li><code>deny</code>: <code>.env</code>, <code>node_modules</code>, 빌드 산출물 읽기 금지</li></ul></dd><dt>주의</dt><dd><code>settings.json</code>은 상위 폴더에서 상속되지 않습니다. 루트 한 곳에 둡니다. 개인 설정은 <code>settings.local.json</code>(커밋 안 함).</dd></dl>
+          </article>
+          <article class="comp">
+            <div class="id"><h3>컨벤션 문서</h3><div class="path"><span>docs/conventions/*.md</span></div><span class="load">Claude가 인덱스를 보고 읽을 때</span><span class="lablink" style="color:var(--muted)">실습 없음 · 읽기</span></div>
+            <dl><dt>무엇인가</dt><dd>사람과 모든 AI 도구가 함께 읽는 <b>코드 컨벤션의 유일한 기준</b>입니다. Claude Code 전용 자산이 아닙니다.</dd><dt>할 수 있는 것</dt><dd>규칙 본문을 한 곳에 두고, CLAUDE.md 인덱스와 rule은 여기를 가리키기만 해서 어긋나지 않게</dd><dt>주의</dt><dd><code>.claude/</code> 안에 컨벤션을 쓰면 사람과 Cursor가 못 봅니다.</dd></dl>
+          </article>
+        </div>
+      </section>
+
       <!-- ============ 실습 1 ============ -->
       <section id="lab1">
         <div class="sec-head">
@@ -345,6 +422,7 @@
         </div>
         <div class="lab">
           <p class="goal"><span class="tag">확인</span><b>모듈 CLAUDE.md와 그룹 스킬은 그 폴더에 들어갈 때 로드된다</b></p>
+          <div class="role"><span class="k">이 실습의 역할 · CLAUDE.md 계층, 하위 폴더 skill</span><span>루트 CLAUDE.md가 길어지면 모듈 전용 내용을 모듈 CLAUDE.md로 옮겨도 된다는 근거를 눈으로 확인합니다. 모듈별 담당자가 자기 폴더의 CLAUDE.md를 관리하는 방식으로 이어집니다.</span></div>
           <ol class="steps">
             <li><input type="checkbox" id="l1-1"><div class="body">
               <label for="l1-1">Claude Code 시작. 폴더 신뢰 확인이 나오면 Yes (프로젝트 훅이 등록돼 있어 묻습니다)</label>
@@ -383,6 +461,7 @@
         </div>
         <div class="lab">
           <p class="goal"><span class="tag">확인</span><b><code>paths:</code>가 맞는 파일을 읽을 때만 rule이 로드되고, Claude의 코드가 달라진다</b></p>
+          <div class="role"><span class="k">이 실습의 역할 · Rule</span><span>"Claude가 이 종류 파일에서 자꾸 틀린다"를 해결하는 가장 싼 방법입니다. 모든 세션에 붙이지 않고도 해당 파일을 만질 때만 규칙이 적용되는 것을 확인합니다.</span></div>
           <ol class="steps">
             <li><input type="checkbox" id="l2-1"><div class="body">
               <label for="l2-1">연습용 파일 만들기 (Claude 안에서는 <code>!</code> 접두어로 셸 실행)</label>
@@ -421,6 +500,7 @@ paths:
         </div>
         <div class="lab">
           <p class="goal"><span class="tag">확인</span><b>PreToolUse 훅이 사람 관리 파일의 수정을 막는다</b></p>
+          <div class="role"><span class="k">이 실습의 역할 · Hook, Permissions</span><span>CLAUDE.md의 "하지 마라"가 무시될 수 있는 규칙을 기계적으로 강제합니다. 비밀값, 운영 문서, 생성 파일 보호와 저장 직후 자동 lint가 대표적인 쓰임입니다. 훅의 한계(matcher 범위)도 함께 봅니다.</span></div>
           <ol class="steps">
             <li><input type="checkbox" id="l3-1"><div class="body">
               <label for="l3-1">운영 문서 수정 시도</label>
@@ -462,6 +542,7 @@ paths:
         </div>
         <div class="lab">
           <p class="goal"><span class="tag">확인</span><b>부수효과 스킬은 사용자만 부르고, 넓은 탐색은 에이전트에 위임된다</b></p>
+          <div class="role"><span class="k">이 실습의 역할 · Skill, Agent, Permissions(ask)</span><span>반복 절차를 skill로 묶을 때 "모델이 알아서 부르게 할지, 사람만 부르게 할지"를 정하는 법, 그리고 넓은 탐색을 에이전트에 넘겨 메인 대화를 가볍게 유지하는 법을 봅니다.</span></div>
           <ol class="steps">
             <li><input type="checkbox" id="l4-1"><div class="body">
               <label for="l4-1"><code>/</code> 입력 후 목록에서 <code>commit</code> 확인. 사용자는 호출할 수 있다</label>
@@ -491,6 +572,7 @@ paths:
         </div>
         <div class="lab">
           <p class="goal"><span class="tag">직접</span><b>"edge/worker의 현재 시각은 항상 UTC 기준 timezone-aware로" 규칙을 rule로 추가한다</b></p>
+          <div class="role"><span class="k">이 실습의 역할 · Rule 작성</span><span>앞에서 본 것을 직접 만들어 봅니다. 팀 저장소로 돌아가서 가장 먼저 할 일(반복되는 실수 하나를 rule로 옮기기)을 연습합니다.</span></div>
           <ol class="steps">
             <li><input type="checkbox" id="l5-1"><div class="body">
               <label for="l5-1"><code>.claude/rules/worker-time.md</code>를 에디터로 직접 작성 (형식을 손으로 익히는 게 목적)</label>

@@ -17,6 +17,7 @@
 2. git, python3 설치 확인 (훅 스크립트가 python3 를 씁니다)
 3. 견본 레포 clone:  git clone <견본 레포 URL> claude-demo
    (macOS·Linux·WSL 권장. 훅이 bash 스크립트입니다)
+4. docs/study/study.html 을 브라우저로 열고 "구성 요소 설명" 섹션 읽기 (10분)
 ```
 
 진행자 체크:
@@ -38,6 +39,26 @@
 
 → 두 질문의 답이 오늘의 주제다. 기록해 두고 정리 시간에 다시 꺼낸다.
 
+## 구성 요소 설명 (진행자 참고 · 참가자 사전 읽기)
+
+study.html의 "구성 요소 설명" 섹션과 같은 내용이다. 개념 시간에는 아래 표의 "한 줄"만 말하고, 세부는 사전 읽기로 넘긴다.
+
+| 구성 요소 | 한 줄 | 할 수 있는 것 | 실습 |
+|---|---|---|---|
+| **CLAUDE.md** | 자동으로 읽히는 메모리 파일 | 명령·관례·금지사항 전달, 문서 인덱스, `@import`. 하위 폴더 파일은 그 폴더에 들어갈 때 로드 | 1 |
+| **AGENTS.md** | 여러 AI 도구 공용 표준 지침 | 도구 중립 개요·구조·빌드. CLAUDE.md가 있으면 자동 로드 안 되므로 `@AGENTS.md`로 가져옴 | — |
+| **Rule** | `paths:` 조건부 메모리 | 특정 파일 패턴을 읽을 때만 붙는 규칙. 흩어진 같은 종류 파일(테스트, 매퍼, tsx)에 적용 | 2, 5 |
+| **Skill** | 재사용 절차 묶음 | 모델 자동 호출 또는 `/이름`. 템플릿·스크립트 동봉, `disable-model-invocation`으로 사용자 전용 | 1, 4 |
+| **Agent** | 별도 컨텍스트의 보조 Claude | 넓은 탐색·검토를 맡기고 요약만 받음. 도구 제한, 모델 지정, 병렬 | 4 |
+| **Hook** | 이벤트에 붙는 셸 명령 (결정적) | `PreToolUse` 차단(exit 2), `PostToolUse` 자동 lint, `SessionStart` 컨텍스트 주입, 알림 | 3 |
+| **Permissions** | 도구 허용·확인·거부 규칙 | allow(묻지 않음) / ask(항상 확인) / deny(금지). 평가 순서 deny → ask → allow | 3, 4 |
+| **컨벤션 문서** | 사람·모든 AI 공용 기준 | 규칙 본문은 `docs/conventions/`에만, `.claude/`는 포인터 | — |
+
+예상 질문:
+- *"skill과 agent 차이가 뭔가요?"* → skill은 **메인 대화 안에서** 절차 지식을 불러오는 것, agent는 **다른 컨텍스트에서** 일을 시키고 결과만 받는 것.
+- *"rule과 모듈 CLAUDE.md 차이는?"* → 모듈 CLAUDE.md는 폴더 단위, rule은 파일 패턴 단위. 여러 모듈에 흩어진 테스트 파일 규칙은 rule.
+- *"hook과 permissions.deny 차이는?"* → deny는 도구·경로 패턴만 막는다. hook은 스크립트라 내용 검사, 자동 lint, 사유 전달까지 할 수 있다.
+
 ## 0:05–0:13 개념: 로드 시점이 곧 비용이다
 
 화면: study.html의 "배치 지도" 표.
@@ -58,6 +79,8 @@
 - *"AGENTS.md는 Claude가 자동으로 안 읽나요?"* → CLAUDE.md가 있으면 안 읽는다. 그래서 CLAUDE.md 첫 줄이 `@AGENTS.md`.
 
 ## 0:13–0:23 실습 1 — CLAUDE.md 계층과 그룹 스킬의 지연 로드
+
+> **이 실습의 역할** (CLAUDE.md 계층, 하위 폴더 skill) — 루트 CLAUDE.md가 길어지면 모듈 전용 내용을 모듈 CLAUDE.md로 옮겨도 된다는 근거를 눈으로 확인한다.
 
 참가자 진행:
 
@@ -86,6 +109,8 @@ claude
 
 ## 0:23–0:31 실습 2 — 경로 rule이 행동을 바꾼다
 
+> **이 실습의 역할** (Rule) — "Claude가 이 종류 파일에서 자꾸 틀린다"를 해결하는 가장 싼 방법. 모든 세션에 붙이지 않고 해당 파일을 만질 때만 적용되는 것을 확인한다.
+
 먼저 연습용 파일을 만든다 (Claude 밖, 셸에서 — 또는 `!` 접두어로 Claude 안에서):
 
 ```bash
@@ -108,6 +133,8 @@ mkdir -p edge/ui/src && echo 'export default function App() { return null }' > e
 
 ## 0:31–0:39 실습 3 — 훅은 요청이 아니라 보장
 
+> **이 실습의 역할** (Hook, Permissions) — 무시될 수 있는 "하지 마라"를 기계적으로 강제한다. 비밀값·운영 문서 보호, 저장 직후 자동 lint가 대표 용도. 한계(matcher 범위)도 함께 본다.
+
 1. 프롬프트: `edge/docs/ops/README.md 끝에 "테스트" 한 줄 추가해줘`
    - **예상**: `[guard] edge/docs/ops/README.md 수정 차단: 운영 절차 문서…` 메시지와 함께 막히고,
      Claude가 "사람이 관리하는 문서라 수정할 수 없다"고 알린다.
@@ -125,6 +152,8 @@ mkdir -p edge/ui/src && echo 'export default function App() { return null }' > e
 
 ## 0:39–0:45 실습 4 — skill과 agent가 불리는 방식
 
+> **이 실습의 역할** (Skill, Agent, Permissions ask) — 절차를 skill로 묶을 때 "모델이 부르게 할지, 사람만 부르게 할지" 정하는 법, 넓은 탐색을 에이전트로 넘겨 메인 대화를 가볍게 유지하는 법.
+
 1. `/` 입력 후 목록에서 `commit` 확인 → 사용자는 부를 수 있다.
 2. 프롬프트: `지금 변경사항 커밋해줘`
    - **예상**: Claude가 `commit` 스킬을 스스로 부르지 **않는다** (`disable-model-invocation: true`).
@@ -138,6 +167,8 @@ mkdir -p edge/ui/src && echo 'export default function App() { return null }' > e
 > 워크플로를 요약해 두면 모델이 본문을 안 읽고 요약대로만 움직입니다.
 
 ## 0:45–0:55 실습 5 — 나만의 rule 만들기
+
+> **이 실습의 역할** (Rule 작성) — 팀 저장소로 돌아가 가장 먼저 할 일(반복되는 실수 하나를 rule로 옮기기)을 연습한다.
 
 과제: *"edge/worker에서 현재 시각은 항상 UTC 기준 timezone-aware로 만든다"* 규칙을 rule로 추가한다.
 
